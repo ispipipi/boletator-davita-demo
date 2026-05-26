@@ -196,6 +196,152 @@ var honorariosSeed = [
     location: "San Bernardo",
     modality: "Chronic",
     financialClass: "Honorarios"
+  },
+  {
+    id: "h8",
+    rut: "11111111-1",
+    nombre: "Julio Espinoza",
+    cargo: "Medico Turno HD",
+    cargoInforme: "Medico de Turno",
+    centro: "FICHA GENERAL",
+    centroCosto: "Seleccionado en solicitud",
+    gerente: "RRHH Corporativo",
+    tipoPago: "HORAS",
+    pactoFirmado: true,
+    activo: true,
+    cuenta: "6011",
+    department: "Medical",
+    location: "Seleccion segun CECO",
+    modality: "Chronic",
+    financialClass: "Honorarios"
+  }
+];
+var tarifasSeed = [
+  {
+    id: "t1",
+    cargo: "Auxiliar de Enfermeria",
+    centro: "AGUDOS",
+    centroCosto: "Facilities Operat./Acute Unit Vina",
+    tipoPago: "HORAS",
+    valorLav: 4500,
+    valorSabado: 4500,
+    valorFestivo: 4800,
+    valorCuartoTurno: 4800,
+    valorCuartoFestivo: 5200,
+    cuenta: "6011",
+    department: "Operations",
+    location: "Vina del Mar",
+    modality: "Acute",
+    financialClass: "Honorarios",
+    vigenteDesde: "2026-04-01"
+  },
+  {
+    id: "t2",
+    cargo: "Enfermero(a) de Dialisis",
+    centro: "AGUDOS",
+    centroCosto: "Facilities Operat./Acute Unit Vina",
+    tipoPago: "HORAS",
+    valorLav: 15e3,
+    valorSabado: 15e3,
+    valorFestivo: 17500,
+    cuenta: "6011",
+    department: "Nursing",
+    location: "Vina del Mar",
+    modality: "Acute",
+    financialClass: "Honorarios",
+    vigenteDesde: "2026-04-01"
+  },
+  {
+    id: "t3",
+    cargo: "Enfermero(a) de Dialisis",
+    centro: "SAN BERNARDO",
+    centroCosto: "Facilities Operat./San Bernardo",
+    tipoPago: "HORAS",
+    valorLav: 15e3,
+    valorSabado: 15e3,
+    valorFestivo: 17500,
+    cuenta: "6011",
+    department: "Nursing",
+    location: "San Bernardo",
+    modality: "Chronic",
+    financialClass: "Honorarios",
+    vigenteDesde: "2026-04-01"
+  },
+  {
+    id: "t4",
+    cargo: "Enfermero(a) de Dialisis",
+    centro: "INDEPENDENCIA",
+    centroCosto: "Facilities Operat./Independencia",
+    tipoPago: "HORAS",
+    valorLav: 1e4,
+    valorSabado: 1e4,
+    valorFestivo: 10500,
+    cuenta: "6011",
+    department: "Nursing",
+    location: "Independencia",
+    modality: "Chronic",
+    financialClass: "Honorarios",
+    vigenteDesde: "2026-04-01"
+  },
+  {
+    id: "t5",
+    cargo: "Medico Turno PD",
+    centro: "ARAUCANIA",
+    centroCosto: "Facilities Operat./Araucania",
+    tipoPago: "PACIENTES",
+    valorPaciente: 5e4,
+    cuenta: "6011",
+    department: "Medical",
+    location: "Araucania",
+    modality: "Peritoneal",
+    financialClass: "Honorarios",
+    vigenteDesde: "2026-04-01"
+  },
+  {
+    id: "t6",
+    cargo: "Director Medico",
+    centro: "AGUDOS",
+    centroCosto: "Facilities Operat./Acute Unit Vina",
+    tipoPago: "FIJO",
+    valorMensual: 16e5,
+    cuenta: "6011",
+    department: "Medical Direction",
+    location: "Vina del Mar",
+    modality: "Acute",
+    financialClass: "Honorarios Sociedad",
+    vigenteDesde: "2026-04-01"
+  },
+  {
+    id: "t7",
+    cargo: "Medico Turno HD",
+    centro: "SANTIAGO",
+    centroCosto: "Facilities Operat./Santiago",
+    tipoPago: "HORAS",
+    valorLav: 3e4,
+    valorSabado: 3e4,
+    valorFestivo: 35e3,
+    cuenta: "6011",
+    department: "Medical",
+    location: "Santiago",
+    modality: "Chronic",
+    financialClass: "Honorarios",
+    vigenteDesde: "2026-04-01"
+  },
+  {
+    id: "t8",
+    cargo: "Medico Turno HD",
+    centro: "VINA DEL MAR",
+    centroCosto: "Facilities Operat./Vina del Mar",
+    tipoPago: "HORAS",
+    valorLav: 25e3,
+    valorSabado: 25e3,
+    valorFestivo: 3e4,
+    cuenta: "6011",
+    department: "Medical",
+    location: "Vina del Mar",
+    modality: "Chronic",
+    financialClass: "Honorarios",
+    vigenteDesde: "2026-04-01"
   }
 ];
 var movimientosSeed = [
@@ -408,15 +554,23 @@ var exportExcel = (filename, rows, sheetName = "Datos") => {
 var printDashboardPdf = () => {
   window.print();
 };
-var calculateDraft = (honorario, draft) => {
-  if (honorario.tipoPago === "FIJO") return honorario.valorMensual || 0;
-  if (honorario.tipoPago === "PACIENTES") return draft.pacientes * (honorario.valorPaciente || 0);
-  return draft.horasLav * (honorario.valorLav || 0) + draft.horasSabado * (honorario.valorSabado || 0) + draft.horasFestivo * (honorario.valorFestivo || 0) + draft.cuartoTurno * (honorario.valorCuartoTurno || 0) + draft.cuartoFestivo * (honorario.valorCuartoFestivo || 0);
+var movimientoCentro = (m) => m.centroSolicitud || m.honorario.centro;
+var movimientoCentroCosto = (m) => m.centroCostoSolicitud || m.honorario.centroCosto;
+var movimientoCuenta = (m) => m.cuenta || m.honorario.cuenta;
+var movimientoDepartment = (m) => m.department || m.honorario.department;
+var movimientoLocation = (m) => m.location || m.honorario.location;
+var movimientoModality = (m) => m.modality || m.honorario.modality;
+var movimientoFinancialClass = (m) => m.financialClass || m.honorario.financialClass;
+var calculateDraft = (tarifa, draft) => {
+  if (tarifa.tipoPago === "FIJO") return tarifa.valorMensual || 0;
+  if (tarifa.tipoPago === "PACIENTES") return draft.pacientes * (tarifa.valorPaciente || 0);
+  return draft.horasLav * (tarifa.valorLav || 0) + draft.horasSabado * (tarifa.valorSabado || 0) + draft.horasFestivo * (tarifa.valorFestivo || 0) + draft.cuartoTurno * (tarifa.valorCuartoTurno || 0) + draft.cuartoFestivo * (tarifa.valorCuartoFestivo || 0);
 };
 var DavitaDemo = () => {
   const [activeTab, setActiveTab] = React.useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [honorarios, setHonorarios] = React.useState(honorariosSeed);
+  const [tarifas, setTarifas] = React.useState(tarifasSeed);
   const [movimientos, setMovimientos] = React.useState(movimientosSeed);
   const [query, setQuery] = React.useState("");
   const [centroFilter, setCentroFilter] = React.useState("Todos");
@@ -425,6 +579,7 @@ var DavitaDemo = () => {
   const [cierreBloqueado, setCierreBloqueado] = React.useState(false);
   const [draft, setDraft] = React.useState({
     honorarioId: "h1",
+    tarifaId: "t1",
     fechaIngreso: "2026-04-30",
     enfermeraJefe: "Roxana Fuentes",
     horasLav: 24,
@@ -437,13 +592,23 @@ var DavitaDemo = () => {
     montoBoletaOcr: 0
   });
   const byId = React.useMemo(() => Object.fromEntries(honorarios.map((h) => [h.id, h])), [honorarios]);
+  const tarifaById = React.useMemo(() => Object.fromEntries(tarifas.map((t) => [t.id, t])), [tarifas]);
   const selectedHonorario = byId[draft.honorarioId] || honorarios[0];
+  const tarifasCargo = React.useMemo(() => tarifas.filter((t) => t.cargo === selectedHonorario?.cargo), [tarifas, selectedHonorario]);
+  const selectedTarifa = tarifaById[draft.tarifaId] || tarifasCargo[0] || tarifas[0];
   const centros = React.useMemo(() => ["Todos", ...Array.from(new Set(honorarios.map((h) => h.centro)))], [honorarios]);
   React.useEffect(() => {
     if (!byId[draft.honorarioId] && honorarios[0]) {
       setDraft((current) => ({ ...current, honorarioId: honorarios[0].id }));
     }
   }, [byId, draft.honorarioId, honorarios]);
+  React.useEffect(() => {
+    if (!selectedHonorario) return;
+    const available = tarifas.filter((tarifa) => tarifa.cargo === selectedHonorario.cargo);
+    if (available.length && !available.some((tarifa) => tarifa.id === draft.tarifaId)) {
+      setDraft((current) => ({ ...current, tarifaId: available[0].id }));
+    }
+  }, [draft.tarifaId, selectedHonorario, tarifas]);
   const enriched = React.useMemo(() => movimientos.flatMap((m) => {
     const honorario = byId[m.honorarioId];
     return honorario ? [{ ...m, honorario }] : [];
@@ -480,13 +645,13 @@ var DavitaDemo = () => {
     "Enfermera jefe": m.enfermeraJefe,
     RUT: m.honorario.rut,
     Nombre: m.honorario.nombre,
-    Centro: m.honorario.centro,
-    "Centro costo": m.honorario.centroCosto,
-    Cuenta: m.honorario.cuenta,
-    Department: m.honorario.department,
-    Location: m.honorario.location,
-    Modality: m.honorario.modality,
-    "Financial Class": m.honorario.financialClass,
+    Centro: movimientoCentro(m),
+    "Centro costo": movimientoCentroCosto(m),
+    Cuenta: movimientoCuenta(m),
+    Department: movimientoDepartment(m),
+    Location: movimientoLocation(m),
+    Modality: movimientoModality(m),
+    "Financial Class": movimientoFinancialClass(m),
     "Horas LaV": m.horasLav,
     "Horas sabado": m.horasSabado,
     "Horas festivo": m.horasFestivo,
@@ -510,7 +675,7 @@ var DavitaDemo = () => {
   const chartByCentro = React.useMemo(() => {
     const grouped = /* @__PURE__ */ new Map();
     enriched.forEach((m) => {
-      const key = m.honorario.centro;
+      const key = movimientoCentro(m);
       const current = grouped.get(key) || { centro: key, bruto: 0, registros: 0 };
       current.bruto += m.bruto;
       current.registros += 1;
@@ -532,7 +697,7 @@ var DavitaDemo = () => {
     orange: "#ee8000",
     yellow: "#ffc100"
   };
-  const DAVITA_LOGO = "./logo-davita.png";
+  const DAVITA_LOGO = `${"./"}logo-davita.png`;
   const openNewHonorario = () => {
     setEditingHonorario(null);
     setIsHonorarioFormOpen(true);
@@ -549,6 +714,19 @@ var DavitaDemo = () => {
     setDraft((current) => ({ ...current, honorarioId: honorario.id }));
     setIsHonorarioFormOpen(false);
     setEditingHonorario(null);
+  };
+  const updateTarifa = (id, patch) => {
+    setTarifas((items) => items.map((item) => item.id === id ? { ...item, ...patch } : item));
+  };
+  const editTarifaHora = (tarifa) => {
+    const current = tarifa.tipoPago === "FIJO" ? tarifa.valorMensual : tarifa.tipoPago === "PACIENTES" ? tarifa.valorPaciente : tarifa.valorLav;
+    const value = window.prompt(`Nuevo valor base para ${tarifa.cargo} en ${tarifa.centro}`, String(current || 0));
+    if (value === null) return;
+    const next = Number(value);
+    if (!Number.isFinite(next) || next < 0) return;
+    if (tarifa.tipoPago === "FIJO") updateTarifa(tarifa.id, { valorMensual: next });
+    else if (tarifa.tipoPago === "PACIENTES") updateTarifa(tarifa.id, { valorPaciente: next });
+    else updateTarifa(tarifa.id, { valorLav: next, valorSabado: next, valorFestivo: Math.round(next * 1.16) });
   };
   const deleteHonorario = (id) => {
     const honorario = honorarios.find((item) => item.id === id);
@@ -601,15 +779,23 @@ var DavitaDemo = () => {
     }));
   };
   const createDraft = () => {
-    const bruto = calculateDraft(selectedHonorario, draft);
-    const retencion = selectedHonorario.tipoPago === "FIJO" ? 0 : bruto * 0.1525;
+    const bruto = calculateDraft(selectedTarifa, draft);
+    const retencion = selectedTarifa.tipoPago === "FIJO" ? 0 : bruto * 0.1525;
     const hasBoleta = draft.boletaAdjunta;
     const montoOcr = hasBoleta ? draft.montoBoletaOcr || bruto : void 0;
     const match = montoOcr !== void 0 && Math.abs(montoOcr - bruto) <= 1;
     const item = {
       id: `m${Date.now()}`,
       honorarioId: selectedHonorario.id,
+      tarifaId: selectedTarifa.id,
       periodo: "2026-04",
+      centroSolicitud: selectedTarifa.centro,
+      centroCostoSolicitud: selectedTarifa.centroCosto,
+      cuenta: selectedTarifa.cuenta,
+      department: selectedTarifa.department,
+      location: selectedTarifa.location,
+      modality: selectedTarifa.modality,
+      financialClass: selectedTarifa.financialClass,
       fechaIngreso: draft.fechaIngreso,
       enfermeraJefe: draft.enfermeraJefe,
       horasLav: draft.horasLav,
@@ -618,7 +804,7 @@ var DavitaDemo = () => {
       cuartoTurno: draft.cuartoTurno,
       cuartoFestivo: draft.cuartoFestivo,
       pacientes: draft.pacientes,
-      mensual: selectedHonorario.tipoPago === "FIJO" ? 1 : 0,
+      mensual: selectedTarifa.tipoPago === "FIJO" ? 1 : 0,
       bruto,
       retencion,
       liquido: bruto - retencion,
@@ -714,9 +900,11 @@ var DavitaDemo = () => {
               centroFilter,
               setCentroFilter,
               centros,
+              tarifas,
               onAdd: openNewHonorario,
               onEdit: openEditHonorario,
               onDelete: deleteHonorario,
+              onEditTarifa: editTarifaHora,
               onExport: () => exportExcel("base-honorarios-davita.xlsx", honorariosRows(filteredHonorarios), "Base Honorarios")
             }
           ),
@@ -728,6 +916,8 @@ var DavitaDemo = () => {
               draft,
               setDraft,
               selectedHonorario,
+              selectedTarifa,
+              tarifasCargo,
               createDraft,
               cierreBloqueado,
               onExportReporte: (rows) => exportExcel("reporte-solicitudes-enfermera.xlsx", movimientosRows(rows), "Solicitudes")
@@ -855,11 +1045,11 @@ var DashboardView = ({ stats, chartByCentro, chartPipeline, movimientos, cierreB
     ] }) })
   ] });
 };
-var MaestroView = ({ honorarios, totalHonorarios, query, setQuery, centroFilter, setCentroFilter, centros, onAdd, onEdit, onDelete, onExport }) => /* @__PURE__ */ jsxs("div", { className: "space-y-5", children: [
+var MaestroView = ({ honorarios, totalHonorarios, query, setQuery, centroFilter, setCentroFilter, centros, tarifas, onAdd, onEdit, onDelete, onEditTarifa, onExport }) => /* @__PURE__ */ jsxs("div", { className: "space-y-5", children: [
   /* @__PURE__ */ jsx("section", { className: "bg-white border border-slate-200 rounded-xl p-5", children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col lg:flex-row lg:items-center justify-between gap-4", children: [
     /* @__PURE__ */ jsxs("div", { children: [
       /* @__PURE__ */ jsx("h2", { className: "text-xl font-black", children: "Base de honorarios" }),
-      /* @__PURE__ */ jsx("p", { className: "text-sm text-slate-500", children: "Mantenedor editable de prestadores, tarifas, pacto y dimensiones contables." })
+      /* @__PURE__ */ jsx("p", { className: "text-sm text-slate-500", children: "Ficha generica del prestador y matriz editable de valores por cargo + CECO." })
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "flex flex-col sm:flex-row gap-3", children: [
       /* @__PURE__ */ jsxs("label", { className: "relative", children: [
@@ -915,6 +1105,48 @@ var MaestroView = ({ honorarios, totalHonorarios, query, setQuery, centroFilter,
     /* @__PURE__ */ jsx(Metric, { title: "Con pacto", value: honorarios.filter((h) => h.pactoFirmado).length.toString(), icon: /* @__PURE__ */ jsx(BadgeCheck, {}), accent: "emerald", detail: "Habilitados para pago" }),
     /* @__PURE__ */ jsx(Metric, { title: "Sin pacto", value: honorarios.filter((h) => !h.pactoFirmado).length.toString(), icon: /* @__PURE__ */ jsx(AlertTriangle, {}), accent: "amber", detail: "Bloquean validacion" }),
     /* @__PURE__ */ jsx(Metric, { title: "Centros", value: new Set(honorarios.map((h) => h.centro)).size.toString(), icon: /* @__PURE__ */ jsx(Building2, {}), accent: "blue", detail: "Con filtro actual" })
+  ] }),
+  /* @__PURE__ */ jsxs("section", { className: "bg-white border border-slate-200 rounded-xl overflow-hidden", children: [
+    /* @__PURE__ */ jsxs("div", { className: "p-5 border-b border-slate-200", children: [
+      /* @__PURE__ */ jsx("h2", { className: "text-lg font-black", children: "Matriz de valores por cargo y CECO" }),
+      /* @__PURE__ */ jsx("p", { className: "text-sm text-slate-500", children: "RRHH/Admin mantiene estos valores. La enfermera solo selecciona el CECO y ve las dimensiones, sin editarlas." })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "w-full min-w-[1040px] text-sm", children: [
+      /* @__PURE__ */ jsx("thead", { className: "bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-500", children: /* @__PURE__ */ jsxs("tr", { children: [
+        /* @__PURE__ */ jsx("th", { className: "p-4 text-left", children: "Cargo" }),
+        /* @__PURE__ */ jsx("th", { className: "p-4 text-left", children: "CECO / Centro" }),
+        /* @__PURE__ */ jsx("th", { className: "p-4 text-left", children: "Tipo" }),
+        /* @__PURE__ */ jsx("th", { className: "p-4 text-right", children: "Valor base" }),
+        /* @__PURE__ */ jsx("th", { className: "p-4 text-left", children: "Dimensiones contables" }),
+        /* @__PURE__ */ jsx("th", { className: "p-4 text-left", children: "Vigente" }),
+        /* @__PURE__ */ jsx("th", { className: "p-4 text-left", children: "Admin" })
+      ] }) }),
+      /* @__PURE__ */ jsx("tbody", { className: "divide-y divide-slate-100", children: tarifas.map((tarifa) => /* @__PURE__ */ jsxs("tr", { className: "hover:bg-slate-50/70", children: [
+        /* @__PURE__ */ jsx("td", { className: "p-4 font-black", children: tarifa.cargo }),
+        /* @__PURE__ */ jsxs("td", { className: "p-4", children: [
+          /* @__PURE__ */ jsx("p", { className: "font-bold", children: tarifa.centro }),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-slate-500", children: tarifa.centroCosto })
+        ] }),
+        /* @__PURE__ */ jsx("td", { className: "p-4", children: /* @__PURE__ */ jsx("span", { className: "rounded-lg bg-slate-100 px-3 py-1 text-xs font-black text-slate-600", children: tarifa.tipoPago }) }),
+        /* @__PURE__ */ jsxs("td", { className: "p-4 text-right font-black", children: [
+          tarifa.tipoPago === "FIJO" && money(tarifa.valorMensual || 0),
+          tarifa.tipoPago === "PACIENTES" && `${money(tarifa.valorPaciente || 0)} / pac.`,
+          tarifa.tipoPago === "HORAS" && `${money(tarifa.valorLav || 0)} / h`
+        ] }),
+        /* @__PURE__ */ jsxs("td", { className: "p-4", children: [
+          /* @__PURE__ */ jsx("p", { className: "font-bold", children: tarifa.department }),
+          /* @__PURE__ */ jsxs("p", { className: "text-xs text-slate-500", children: [
+            tarifa.location,
+            " \xB7 ",
+            tarifa.modality,
+            " \xB7 ",
+            tarifa.financialClass
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx("td", { className: "p-4 font-bold", children: tarifa.vigenteDesde }),
+        /* @__PURE__ */ jsx("td", { className: "p-4", children: /* @__PURE__ */ jsx(SmallButton, { onClick: () => onEditTarifa(tarifa), icon: /* @__PURE__ */ jsx(Pencil, { size: 14 }), label: "Modificar valor" }) })
+      ] }, tarifa.id)) })
+    ] }) })
   ] }),
   /* @__PURE__ */ jsx("section", { className: "bg-white border border-slate-200 rounded-xl overflow-hidden", children: /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "w-full min-w-[1180px] text-sm", children: [
     /* @__PURE__ */ jsx("thead", { className: "bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-500", children: /* @__PURE__ */ jsxs("tr", { children: [
@@ -1140,11 +1372,11 @@ var NumberField = ({ label, value, onChange }) => /* @__PURE__ */ jsxs("label", 
     }
   )
 ] });
-var CargaView = ({ honorarios, movimientos, draft, setDraft, selectedHonorario, createDraft, cierreBloqueado, onExportReporte }) => {
+var CargaView = ({ honorarios, movimientos, draft, setDraft, selectedHonorario, selectedTarifa, tarifasCargo, createDraft, cierreBloqueado, onExportReporte }) => {
   const [fromDate, setFromDate] = React.useState("2026-04-01");
   const [toDate, setToDate] = React.useState("2026-04-30");
-  const bruto = calculateDraft(selectedHonorario, draft);
-  const retencion = selectedHonorario.tipoPago === "FIJO" ? 0 : bruto * 0.1525;
+  const bruto = calculateDraft(selectedTarifa, draft);
+  const retencion = selectedTarifa.tipoPago === "FIJO" ? 0 : bruto * 0.1525;
   const reporte = movimientos.filter((m) => m.enfermeraJefe === draft.enfermeraJefe && m.fechaIngreso >= fromDate && m.fechaIngreso <= toDate);
   return /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
     cierreBloqueado && /* @__PURE__ */ jsx("section", { className: "rounded-xl border border-[#d20f55]/30 bg-[#d20f55]/10 p-4 text-sm font-bold text-[#8a0d39]", children: "El administrador bloqueo el periodo de cierre. Las enfermeras jefe pueden revisar reportes, pero no generar nuevas solicitudes." }),
@@ -1182,19 +1414,37 @@ var CargaView = ({ honorarios, movimientos, draft, setDraft, selectedHonorario, 
                 children: honorarios.map((h) => /* @__PURE__ */ jsxs("option", { value: h.id, children: [
                   h.nombre,
                   " \xB7 ",
-                  h.centro,
+                  h.cargo,
                   " \xB7 ",
-                  h.tipoPago
+                  h.pactoFirmado ? "Pacto OK" : "Sin pacto"
                 ] }, h.id))
               }
             )
           ] }),
-          /* @__PURE__ */ jsx(NumberInput, { label: "Horas LaV", value: draft.horasLav, onChange: (value) => setDraft((current) => ({ ...current, horasLav: value })), disabled: selectedHonorario.tipoPago !== "HORAS" }),
-          /* @__PURE__ */ jsx(NumberInput, { label: "Horas sabado", value: draft.horasSabado, onChange: (value) => setDraft((current) => ({ ...current, horasSabado: value })), disabled: selectedHonorario.tipoPago !== "HORAS" }),
-          /* @__PURE__ */ jsx(NumberInput, { label: "Horas festivo", value: draft.horasFestivo, onChange: (value) => setDraft((current) => ({ ...current, horasFestivo: value })), disabled: selectedHonorario.tipoPago !== "HORAS" }),
-          /* @__PURE__ */ jsx(NumberInput, { label: "4to turno", value: draft.cuartoTurno, onChange: (value) => setDraft((current) => ({ ...current, cuartoTurno: value })), disabled: selectedHonorario.tipoPago !== "HORAS" }),
-          /* @__PURE__ */ jsx(NumberInput, { label: "4to festivo", value: draft.cuartoFestivo, onChange: (value) => setDraft((current) => ({ ...current, cuartoFestivo: value })), disabled: selectedHonorario.tipoPago !== "HORAS" }),
-          /* @__PURE__ */ jsx(NumberInput, { label: "Pacientes", value: draft.pacientes, onChange: (value) => setDraft((current) => ({ ...current, pacientes: value })), disabled: selectedHonorario.tipoPago !== "PACIENTES" }),
+          /* @__PURE__ */ jsxs("label", { className: "space-y-2 md:col-span-2", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-xs font-black uppercase tracking-widest text-slate-500", children: "CECO / Centro de la solicitud" }),
+            /* @__PURE__ */ jsx(
+              "select",
+              {
+                value: selectedTarifa?.id || "",
+                onChange: (event) => setDraft((current) => ({ ...current, tarifaId: event.target.value, montoBoletaOcr: 0 })),
+                className: "h-12 w-full rounded-xl border border-slate-200 px-4 text-sm font-bold outline-none focus:border-[#0069b1] bg-white",
+                children: tarifasCargo.map((tarifa) => /* @__PURE__ */ jsxs("option", { value: tarifa.id, children: [
+                  tarifa.centro,
+                  " \xB7 ",
+                  tarifa.centroCosto,
+                  " \xB7 ",
+                  money(tarifa.valorLav || tarifa.valorPaciente || tarifa.valorMensual || 0)
+                ] }, tarifa.id))
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsx(NumberInput, { label: "Horas LaV", value: draft.horasLav, onChange: (value) => setDraft((current) => ({ ...current, horasLav: value })), disabled: selectedTarifa.tipoPago !== "HORAS" }),
+          /* @__PURE__ */ jsx(NumberInput, { label: "Horas sabado", value: draft.horasSabado, onChange: (value) => setDraft((current) => ({ ...current, horasSabado: value })), disabled: selectedTarifa.tipoPago !== "HORAS" }),
+          /* @__PURE__ */ jsx(NumberInput, { label: "Horas festivo", value: draft.horasFestivo, onChange: (value) => setDraft((current) => ({ ...current, horasFestivo: value })), disabled: selectedTarifa.tipoPago !== "HORAS" }),
+          /* @__PURE__ */ jsx(NumberInput, { label: "4to turno", value: draft.cuartoTurno, onChange: (value) => setDraft((current) => ({ ...current, cuartoTurno: value })), disabled: selectedTarifa.tipoPago !== "HORAS" }),
+          /* @__PURE__ */ jsx(NumberInput, { label: "4to festivo", value: draft.cuartoFestivo, onChange: (value) => setDraft((current) => ({ ...current, cuartoFestivo: value })), disabled: selectedTarifa.tipoPago !== "HORAS" }),
+          /* @__PURE__ */ jsx(NumberInput, { label: "Pacientes", value: draft.pacientes, onChange: (value) => setDraft((current) => ({ ...current, pacientes: value })), disabled: selectedTarifa.tipoPago !== "PACIENTES" }),
           /* @__PURE__ */ jsxs("label", { className: "space-y-2", children: [
             /* @__PURE__ */ jsx("span", { className: "text-xs font-black uppercase tracking-widest text-slate-500", children: "Boleta PDF" }),
             /* @__PURE__ */ jsxs(
@@ -1245,12 +1495,38 @@ var CargaView = ({ honorarios, movimientos, draft, setDraft, selectedHonorario, 
         /* @__PURE__ */ jsxs("p", { className: "mt-1 text-sm text-slate-400", children: [
           selectedHonorario.rut,
           " \xB7 ",
-          selectedHonorario.centro
+          selectedTarifa.centro
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "mt-6 space-y-3", children: [
+          /* @__PURE__ */ jsx(AsideAmount, { label: "Valor base CECO", value: money(selectedTarifa.valorLav || selectedTarifa.valorPaciente || selectedTarifa.valorMensual || 0) }),
           /* @__PURE__ */ jsx(AsideAmount, { label: "Bruto esperado", value: money(bruto) }),
           /* @__PURE__ */ jsx(AsideAmount, { label: "Retencion", value: money(retencion) }),
           /* @__PURE__ */ jsx(AsideAmount, { label: "Liquido referencia", value: money(bruto - retencion) })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "mt-6 rounded-xl bg-white/5 border border-white/10 p-4", children: [
+          /* @__PURE__ */ jsx("p", { className: "text-[10px] font-black uppercase tracking-[0.2em] text-[#ffc100]", children: "Dimensiones no editables" }),
+          /* @__PURE__ */ jsxs("div", { className: "mt-3 grid grid-cols-1 gap-2 text-xs text-slate-300", children: [
+            /* @__PURE__ */ jsxs("span", { children: [
+              "CECO: ",
+              selectedTarifa.centroCosto
+            ] }),
+            /* @__PURE__ */ jsxs("span", { children: [
+              "Department: ",
+              selectedTarifa.department
+            ] }),
+            /* @__PURE__ */ jsxs("span", { children: [
+              "Location: ",
+              selectedTarifa.location
+            ] }),
+            /* @__PURE__ */ jsxs("span", { children: [
+              "Modality: ",
+              selectedTarifa.modality
+            ] }),
+            /* @__PURE__ */ jsxs("span", { children: [
+              "Financial Class: ",
+              selectedTarifa.financialClass
+            ] })
+          ] })
         ] }),
         /* @__PURE__ */ jsx("div", { className: "mt-6 rounded-xl bg-white/5 border border-white/10 p-4", children: /* @__PURE__ */ jsx("p", { className: "text-xs text-slate-300", children: "Si la enfermera genera la solicitud sin boleta, el estado queda pendiente de inmediato y el caso se provisiona para centralizacion. Si adjunta PDF, el OCR simulado compara el total contra el bruto esperado." }) })
       ] })
@@ -1285,7 +1561,7 @@ var CargaView = ({ honorarios, movimientos, draft, setDraft, selectedHonorario, 
               /* @__PURE__ */ jsx("p", { className: "font-black", children: m.honorario.nombre }),
               /* @__PURE__ */ jsx("p", { className: "text-xs text-slate-500", children: m.honorario.rut })
             ] }),
-            /* @__PURE__ */ jsx("td", { className: "p-4", children: m.honorario.centro }),
+            /* @__PURE__ */ jsx("td", { className: "p-4", children: movimientoCentro(m) }),
             /* @__PURE__ */ jsx("td", { className: "p-4 text-right font-black", children: money(m.bruto) }),
             /* @__PURE__ */ jsx("td", { className: "p-4", children: /* @__PURE__ */ jsx(StatusBadge, { estado: m.estado }) })
           ] }, m.id)),
@@ -1335,8 +1611,8 @@ var ValidacionView = ({ movimientos, approve, attachBoleta, runOcr, validateSii,
           m.observacion && /* @__PURE__ */ jsx("p", { className: "mt-1 text-xs font-bold text-orange-700", children: m.observacion })
         ] }),
         /* @__PURE__ */ jsxs("td", { className: "p-4", children: [
-          /* @__PURE__ */ jsx("p", { className: "font-bold", children: m.honorario.centro }),
-          /* @__PURE__ */ jsx("p", { className: "text-xs text-slate-500", children: m.honorario.centroCosto })
+          /* @__PURE__ */ jsx("p", { className: "font-bold", children: movimientoCentro(m) }),
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-slate-500", children: movimientoCentroCosto(m) })
         ] }),
         /* @__PURE__ */ jsx("td", { className: "p-4 text-right font-black", children: money(m.bruto) }),
         /* @__PURE__ */ jsx("td", { className: "p-4 text-right", children: /* @__PURE__ */ jsx("span", { className: `font-black ${match ? "text-emerald-700" : "text-orange-700"}`, children: m.montoBoleta ? money(m.montoBoleta) : "-" }) }),
@@ -1411,10 +1687,10 @@ var ContabilidadView = ({ movimientos, centralize, onExport }) => {
       /* @__PURE__ */ jsx("tbody", { className: "divide-y divide-slate-100", children: movimientos.map((m) => /* @__PURE__ */ jsxs("tr", { children: [
         /* @__PURE__ */ jsx("td", { className: "p-4 font-black", children: m.folio || "-" }),
         /* @__PURE__ */ jsx("td", { className: "p-4", children: m.honorario.rut }),
-        /* @__PURE__ */ jsx("td", { className: "p-4", children: m.honorario.centroCosto }),
-        /* @__PURE__ */ jsx("td", { className: "p-4", children: m.honorario.department }),
-        /* @__PURE__ */ jsx("td", { className: "p-4", children: m.honorario.location }),
-        /* @__PURE__ */ jsx("td", { className: "p-4", children: m.honorario.modality }),
+        /* @__PURE__ */ jsx("td", { className: "p-4", children: movimientoCentroCosto(m) }),
+        /* @__PURE__ */ jsx("td", { className: "p-4", children: movimientoDepartment(m) }),
+        /* @__PURE__ */ jsx("td", { className: "p-4", children: movimientoLocation(m) }),
+        /* @__PURE__ */ jsx("td", { className: "p-4", children: movimientoModality(m) }),
         /* @__PURE__ */ jsx("td", { className: "p-4 text-right font-black", children: money(m.bruto) }),
         /* @__PURE__ */ jsx("td", { className: "p-4", children: ["PENDIENTE_BOLETA", "OBSERVADA_RRHH"].includes(m.estado) || m.provisionado ? /* @__PURE__ */ jsx("span", { className: "rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700", children: "Provisionado" }) : /* @__PURE__ */ jsx("span", { className: "rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700", children: "Pago" }) }),
         /* @__PURE__ */ jsx("td", { className: "p-4", children: /* @__PURE__ */ jsx(StatusBadge, { estado: m.estado }) })
@@ -1438,7 +1714,7 @@ var TrazabilidadView = ({ movimientos, onExport }) => /* @__PURE__ */ jsxs("div"
       /* @__PURE__ */ jsxs("div", { children: [
         /* @__PURE__ */ jsx("h3", { className: "font-black", children: m.honorario.nombre }),
         /* @__PURE__ */ jsxs("p", { className: "text-sm text-slate-500", children: [
-          m.honorario.centro,
+          movimientoCentro(m),
           " \xB7 ",
           money(m.bruto)
         ] })
